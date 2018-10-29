@@ -1,0 +1,33 @@
+2018-10-28 22:09:31,942 - __main__ - INFO - Starting now: [2018-10-28 22:09:31.942702]
+2018-10-28 22:09:31,942 - __main__ - INFO - Last shutdown was: [2018-10-28 21:03:52.821056]
+2018-10-28 22:09:31,942 - __main__ - INFO - Sensors[Windows] successfully loaded
+2018-10-28 22:09:31,942 - __main__ - INFO - countFlag= None
+2018-10-28 22:09:31,942 - __main__ - INFO - Contador[Basic OpenCV] successfully loaded
+2018-10-28 22:09:31,958 - __main__ - INFO - MQtt[Windows] successfully loaded
+2018-10-28 22:09:31,958 - __main__ - INFO - CamBus[Windows] successfully started for Python 3.7
+2018-10-28 22:09:31,958 - __main__ - INFO - PID=  14748
+2018-10-28 22:09:31,958 - __main__ - INFO - ID=   0x847bebfeff7c
+2018-10-28 22:09:31,958 - __main__ - INFO - mq=   aws
+2018-10-28 22:09:31,958 - __main__ - INFO - MainThread= <_MainThread(MainThread, started 16984)>
+2018-10-28 22:09:32,005 - __main__ - ERROR - Dweet error: 'NoneType' object is not iterable
+2018-10-28 22:11:00,092 - __main__ - INFO - Starting now: [2018-10-28 22:11:00.092946]
+2018-10-28 22:11:00,092 - __main__ - INFO - Last shutdown was: [2018-10-28 22:09:32.005169]
+2018-10-28 22:11:00,108 - __main__ - INFO - Sensors[Windows] successfully loaded
+2018-10-28 22:11:00,108 - __main__ - INFO - countFlag= None
+2018-10-28 22:11:00,108 - __main__ - INFO - Contador[Basic OpenCV] successfully loaded
+2018-10-28 22:11:00,108 - __main__ - INFO - MQtt[Windows] successfully loaded
+2018-10-28 22:11:00,108 - __main__ - INFO - CamBus[Windows] successfully started for Python 3.7
+2018-10-28 22:11:00,108 - __main__ - INFO - PID=  2348
+2018-10-28 22:11:00,108 - __main__ - INFO - ID=   0x847bebfeff7c
+2018-10-28 22:11:00,108 - __main__ - INFO - mq=   aws
+2018-10-28 22:11:00,108 - __main__ - INFO - MainThread= <_MainThread(MainThread, started 3752)>
+2018-10-28 22:11:01,030 - __main__ - INFO - Subscribed to [aws/command/#]
+2018-10-28 22:11:01,030 - __main__ - INFO - Subscribed to [aws/file/#]
+2018-10-28 22:11:01,936 - __main__ - INFO - publishDweet(dweet.io, {"state": {"reported": {"BUS": {"Na  ...})
+2018-10-28 22:11:01,936 - __main__ - INFO - MQTTThread= <Thread(Thread-1, started daemon 5256)>
+2018-10-28 22:11:01,936 - __main__ - INFO - MQTT connected to [a3k400xgjmh5lk.iot.us-east-2.amazonaws.com:8883]
+2018-10-28 22:11:01,936 - __main__ - INFO - CounterThread= <Thread(Thread-2, started daemon 16764)>
+2018-10-28 22:11:17,782 - __main__ - INFO - publishDweet(dweet.io, {"state": {"reported": {"BUS": {"Na  ...})
+2018-10-28 22:11:33,430 - __main__ - INFO - publishDweet(dweet.io, {"state": {"reported": {"BUS": {"Na  ...})
+2018-10-28 22:11:49,120 - __main__ - INFO - publishDweet(dweet.io, {"state": {"reported": {"BUS": {"Na  ...})
+2018-10-28 22:12:02,342 - __main__ - INFO - Finishing due to CTR+C
