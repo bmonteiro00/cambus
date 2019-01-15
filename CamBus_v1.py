@@ -31,6 +31,7 @@ from uuid import getnode as get_mac
 from Contador_v1    import Contador
 from sensors.Sensors_v1     import Sensors
 from endpoint.MqttClient_v1  import MQttClient
+from util.ArgParser import ArgParserMqtt
 
 configFilename = "CamBus.ini"
 
@@ -155,6 +156,7 @@ class CamBus:
         self._busConfig.set('MQTT', 'mq',   self._mq)
         self._busConfig.set('MQTT', 'host', self._host)
         self._busConfig.set('MQTT', 'port', self._port)
+        self._busConfig.set('MQTT', 'clientId', self._clientId)
         
         self._busConfig.write(cfgFile)
         cfgFile.close()
@@ -253,7 +255,8 @@ class CamBus:
         self._line =  self._busConfig.get('BUS','line')
 
         self._mq =       self._busConfig.get('MQTT','mq')
-        self._host =     self._busConfig.get('MQTT','host') 
+        self._host =     self._busConfig.get('MQTT','host')
+        self._clientId = self._busConfig.get('MQTT','clientId')
         self._port =     self._busConfig.get('MQTT','port') 
         self._caPath =   self._busConfig.get('MQTT','caPath')
         self._certPath = self._busConfig.get('MQTT','certPath')
@@ -297,7 +300,8 @@ class CamBus:
             
         elif self._mq == 'aws':
             self._mqtt.setup(self._host, self._port)
-            self._mqtt.AWSConnect(self._caPath, self._certPath,  self._keyPath, self._topic, self._subscribeTo, bData )
+            argparser = ArgParserMqtt(self._caPath, self._certPath,  self._keyPath, self._topic, self._subscribeTo, bData, self._clientId)
+            self._mqtt.AWSConnect(argparser.getArgParser())
 
         else:
             LOG.critical('[MQ] = ' +self._mq +', is an invalid option!')
@@ -375,7 +379,7 @@ class CamBus:
         self.publishDweet(json.dumps(cData) )
 
         # Infinite loops, in threads
-        self._mqtt.run() 
+        #self._mqtt.run()
         self._counter.run()
        
         while True:

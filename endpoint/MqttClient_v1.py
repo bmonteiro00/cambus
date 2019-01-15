@@ -5,6 +5,7 @@
 #
 
 import os
+from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import paho.mqtt.client as paho
 import socket
 import ssl
@@ -13,6 +14,7 @@ import threading
 from time import sleep
 from random import uniform
 import json
+import logging
 
 # Error values
 MQTT_HOST_EMPTY = -31
@@ -34,11 +36,12 @@ class MQttClient:
         self._port = ''
         self._filename = ''
         self._fakeFlag = False
-        
+
         self._mq = paho.Client()
         self._mq.on_connect = self.onConnect
         self._mq.on_message = self.onMessage
         self._mq.on_disconnect = self.onDisconnect
+        self._myAWSIoTMQTTClient = None
         
         self.LOG.info('MQtt[%s] successfully loaded', self._OS)
 
@@ -49,7 +52,7 @@ class MQttClient:
         T1 = threading.Thread(target=self.loop)
         T1.daemon = True    # Permite CTR+C parar o progama!
         T1.start()
-        
+
     def loop(self):
         self.LOG.info('MQTTThread= ' +str(threading.current_thread()) )
         self._mq.loop_forever()
@@ -63,7 +66,7 @@ class MQttClient:
         
     def publish(self, topic, json_string):
         print('publish(' +self._host +')  ' +topic +', \n' +json_string)
-        self._mq.publish(topic, json_string, qos=1)
+        self._myAWSIoTMQTTClient.publish(str(topic), json_string, 1)
     
     def connect(self, topic, subscribe_to, jSon):
     
@@ -78,10 +81,10 @@ class MQttClient:
         elif (not self._port) or (self._host == ""):
             self.LOG.critical('[Port] cannot be empty! Use .setup() first')
             sys.exit(MQTT_PORT_EMPTY)
-        
+
         try:
             self._mq.connect(self._host, int(self._port), keepalive=60)
-          
+
         except (IOError, RuntimeError):
             self.LOG.critical('MQTT failed to connect to [' +self._host +':' +self._port +']')
             sys.exit(MQTT_CONNECT_ERR)
@@ -93,9 +96,27 @@ class MQttClient:
         # Publica uma mensagem inicial, para anunciar que comecou a enviar dados
         self._mq.publish(topic, json.dumps(jSon), qos=0)
     
-    def AWSConnect(self, caPath, certPath, keyPath, topic, subscribeTo, jsonString):
-        self._mq.tls_set(caPath, certfile=certPath, keyfile=keyPath, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2, ciphers=None)
-        self.connect(topic, subscribeTo, jsonString)
+    def AWSConnect(self, argParser):
+        args = argParser.parse_args()
+        rootCAPath = args.rootCAPath
+        certificatePath = args.certificatePath
+        privateKeyPath = args.privateKeyPath
+        clientId = args.clientId
+        topic = args.topic
+
+        print(rootCAPath,certificatePath,privateKeyPath, clientId, self._host, self._port, topic)
+        self._myAWSIoTMQTTClient = AWSIoTMQTTClient(clientId)
+        self._myAWSIoTMQTTClient.configureEndpoint(self._host, int(self._port))
+        self._myAWSIoTMQTTClient.configureCredentials(rootCAPath, privateKeyPath, certificatePath)
+        #self._mq.tls_set(caPath, certfile=certPath, keyfile=keyPath, cert_reqs=ssl.CERT_REQUIRED, tls_version=ssl.PROTOCOL_TLSv1_2, ciphers=None)
+        #self.connect(topic, subscribeTo, jsonString)
+        #self._myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
+        #self._myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
+        #self._myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
+        #self._myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
+        #self._myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
+        self._myAWSIoTMQTTClient.connect()
+        self._myAWSIoTMQTTClient.publish(str(topic), "Cambus connected", 1)
     
     def doSubscribe(self, subscribeTo):
         print(self._mq.subscribe(subscribeTo))
