@@ -88,7 +88,7 @@ class CamBus:
 
     def __init__(self):
         self.frame = None
-        self._videoPath = ""
+        self._videoPath = None
         
         ########################################################################################
         # Dados basicos: sistema operacional, PID, e o MAC (para gerar um nome unico no MQTT)
@@ -104,7 +104,7 @@ class CamBus:
         py_mod = imp.load_source('Contador', self._busConfig.get('DEFAULT','contador_class'))
 
         if hasattr(py_mod, 'Contador'):
-                self._counter = getattr(py_mod, 'Contador')(LOG,'video')
+                self._counter = getattr(py_mod, 'Contador')(LOG,self._videoPath)
 
         self._mqtt = MQttClient(LOG, self._OS, self._lastShutdown)
         self._subscribeTo = self._busConfig.get('MQTT','SUBSCRIBE_TO')

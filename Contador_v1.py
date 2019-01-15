@@ -21,6 +21,7 @@ class Contador:
         self._countFlag = os.getenv('COUNT')
         self.LOG = logger
         self._videoPath = video
+        self.LOG.info(self._videoPath)
         self.LOG.info('countFlag= ' +str(self._countFlag) )
         
         self._countUp = 0
