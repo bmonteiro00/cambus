@@ -1,6 +1,6 @@
 #
 # Maintainer:   Cambus
-# Version:      0.0.1
+# Version:      0.0.2
 #
 #
 
@@ -88,6 +88,7 @@ class CamBus:
 
     def __init__(self):
         self.frame = None
+        self._videoPath = ""
         
         ########################################################################################
         # Dados basicos: sistema operacional, PID, e o MAC (para gerar um nome unico no MQTT)
@@ -103,7 +104,7 @@ class CamBus:
         py_mod = imp.load_source('Contador', self._busConfig.get('DEFAULT','contador_class'))
 
         if hasattr(py_mod, 'Contador'):
-                self._counter = getattr(py_mod, 'Contador')(LOG)
+                self._counter = getattr(py_mod, 'Contador')(LOG,'video')
 
         self._mqtt = MQttClient(LOG, self._OS, self._lastShutdown)
         self._subscribeTo = self._busConfig.get('MQTT','SUBSCRIBE_TO')
@@ -261,6 +262,7 @@ class CamBus:
         self._caPath =   self._busConfig.get('MQTT','caPath')
         self._certPath = self._busConfig.get('MQTT','certPath')
         self._keyPath =  self._busConfig.get('MQTT','keyPath')
+        self._videoPath = self._busConfig.get('DEFAULT', 'video')
         self._publishInterval = int(self._busConfig.get('MQTT','publish_interval'))
 
         agora = str(datetime.datetime.now())
@@ -405,7 +407,7 @@ class CamBus:
             self.loadFile()
         
         if(self._countFlag):
-            Contador().detectPeople()
+            Contador(self._videoPath).detectPeople()
         else:
             print('please use export COUNT=x to enable Counting Process')
         

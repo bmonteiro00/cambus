@@ -1,6 +1,6 @@
 #
 # Maintainer:   Cambus
-# Version:      0.0.1
+# Version:      0.0.2
 #
 #
 
@@ -15,11 +15,12 @@ import Pessoa
 
 class Contador:
 
-    def __init__(self, logger):
+    def __init__(self, logger, video):
         self.id = os.getpid()
         self.frame = None
         self._countFlag = os.getenv('COUNT')
         self.LOG = logger
+        self._videoPath = video
         self.LOG.info('countFlag= ' +str(self._countFlag) )
         
         self._countUp = 0
@@ -72,9 +73,7 @@ class Contador:
 
         #Fonte de video
         #cap = cv2.VideoCapture(0) # Descomente para usar a camera.
-        #cap = cv2.VideoCapture("C:\\Users\\Bruno\\Documents\\GitHub\\Contador\\peopleCounter.avi") #Captura um video
-        #cap = cv2.VideoCapture("C:\\Users\\Bruno\\Documents\\GitHub\\Contador\\d.mp4") #Captura um video
-        cap = cv2.VideoCapture("bus.avi") #Captura um video
+        cap = cv2.VideoCapture(self._videoPath) #Captura um video
 
         #Descomente para imprimir as propriedades do video
         """for i in range(19):
@@ -132,7 +131,7 @@ class Contador:
         pts_L4 = pts_L4.reshape((-1,1,2))
 
         #Substrator de fundo
-        fgbg = cv2.createBackgroundSubtractorMOG2(500,detectShadows = True)
+        fgbg = cv2.BackgroundSubtractorMOG2(500,16,True)
 
         #Elementos estruturantes para filtros morfoogicos
         kernelOp = np.ones((3,3),np.uint8)
@@ -188,7 +187,7 @@ class Contador:
             #################
 
             # RETR_EXTERNAL returns only extreme outer flags. All child contours are left behind.
-            _, contours0, hierarchy = cv2.findContours(mask2,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+            contours0, hierarchy = cv2.findContours(mask2,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
             for cnt in contours0:
                 area = cv2.contourArea(cnt)
                 #cv2.drawContours(frame, cnt, -1, (0,0,255), 3, 8)
@@ -258,7 +257,7 @@ class Contador:
                    frame = cv2.polylines(frame,[pts],False,pessoa.getRGB())
                 if pessoa.getId() == 9:
                    print (str(pessoa.getX()), ',', str(pessoa.getY()))
-                cv2.putText(frame, str(pessoa.getId()),(pessoa.getX(),pessoa.getY()),font,0.3,pessoa.getRGB(),1,cv2.LINE_AA)
+                #cv2.putText(frame, str(pessoa.getId()),(pessoa.getX(),pessoa.getY()),font,0.3,pessoa.getRGB(),1,cv2.LINE_AA)
 
             #################
             #   IMAGEM      #
@@ -273,10 +272,10 @@ class Contador:
             #frame = cv2.polylines(frame,[pts_L3],False,(255,255,255),thickness=1)
             #frame = cv2.polylines(frame,[pts_L4],False,(255,255,255),thickness=1)
 
-            self.escreveCabecalho(frame, str_up, str_down, titulodown,tituloup,dataehora,font, x_meio)
+            #self.escreveCabecalho(frame, str_up, str_down, titulodown,tituloup,dataehora,font, x_meio)
 
-            cv2.imshow('Frame',frame)
-            cv2.imshow('Debug',mask)
+            #cv2.imshow('Frame',frame)
+            #cv2.imshow('Debug',mask)
 
             # pressionar ESC para sair
             k = cv2.waitKey(30) & 0xff
