@@ -13,6 +13,8 @@ import platform
 import threading
 import subprocess
 
+from gpio_96boards import GPIO
+
 # Error values
 SENSOR_CANNOT_IMPORT_GPIO = -21
 SENSOR_UNKNOWN_SO =         -22
@@ -172,10 +174,25 @@ class Sensors:
         print ('Sensor[] died')
 
     def __init__(self, logger, so):
+
+        import spidev
+        import time
+        from libsoc import gpio
+
         self.frame = None
        
         self.LOG = logger
         self._OS = so
+
+        self._GPIO_CS = GPIO.gpio_id('GPIO_CS')
+
+        self._dragonpins = ((GPIO_CS, 'out'),)
+
+        self._spi = spidev.SpiDev()
+        self._spi.open(0, 0)
+        self._spi.max_speed_hz = 10000
+        self._spi.mode = 0b00
+        self._spi.bits_per_word = 8
         
         # Tenta importar a biblioteca GPIO correta para o hardware
         try:
@@ -205,9 +222,10 @@ class Sensors:
                 self._rfid = RFIDReader(logger, self, self._OS)
                 
             elif self._OS == 'linaro-alip':  # Para a Dragon
-                from GPIOLibrary import GPIOProcessor
 
-                self.GPIO = GPIOProcessor()
+                with GPIO(pins) as gpio:
+                     self._tempDragon = readDragonEnvTemperature(gpio, self._spi)
+
                 self._gps = GPS(logger, self._OS)
                 self._rfid = RFIDReader(logger, self, self._OS)
 
@@ -256,7 +274,23 @@ class Sensors:
         time.sleep(delay)
         self._pwmBlue.ChangeDutyCycle(0)
         self._pwmRed.ChangeDutyCycle(0)
-    
+
+        # Return CPU temperature as a character string
+
+    def readDragonEnvTemperature(self, gpio, spi_pin):
+
+        gpio.digital_write(self._GPIO_CS, GPIO.HIGH)
+        time.sleep(0.0002)
+        gpio.digital_write(self._GPIO_CS, GPIO.LOW)
+        r = spi_pin.xfer2([0x01, 0xA0, 0x00])
+        gpio.digital_write(self._GPIO_CS, GPIO.HIGH)
+        adcout = (r[1] << 8) & 0b1100000000
+        adcout = adcout | (r[2] & 0xff)
+
+        adc_temp = (adcout * 5.0 / 1023 - 0.5) * 100
+
+        return adc_temp
+
     # Return CPU temperature as a character string                               
     def getRaspCPUTemperature(self):
         res = os.popen('vcgencmd measure_temp').readline()
