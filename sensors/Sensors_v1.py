@@ -13,7 +13,7 @@ import platform
 import threading
 import subprocess
 
-from gpio_96boards import GPIO
+#from gpio_96boards import GPIO
 
 # Error values
 SENSOR_CANNOT_IMPORT_GPIO = -21
@@ -175,24 +175,24 @@ class Sensors:
 
     def __init__(self, logger, so):
 
-        import spidev
-        import time
-        from libsoc import gpio
+        #import spidev
+        #import time
+        #from libsoc import gpio
 
         self.frame = None
        
         self.LOG = logger
         self._OS = so
 
-        self._GPIO_CS = GPIO.gpio_id('GPIO_CS')
+        #self._GPIO_CS = GPIO.gpio_id('GPIO_CS')
 
-        self._dragonpins = ((GPIO_CS, 'out'),)
+        #self._dragonpins = ((GPIO_CS, 'out'),)
 
-        self._spi = spidev.SpiDev()
-        self._spi.open(0, 0)
-        self._spi.max_speed_hz = 10000
-        self._spi.mode = 0b00
-        self._spi.bits_per_word = 8
+        #self._spi = spidev.SpiDev()
+        #self._spi.open(0, 0)
+        #self._spi.max_speed_hz = 10000
+        #self._spi.mode = 0b00
+        #self._spi.bits_per_word = 8
         
         # Tenta importar a biblioteca GPIO correta para o hardware
         try:
@@ -223,10 +223,10 @@ class Sensors:
                 
             elif self._OS == 'linaro-alip':  # Para a Dragon
 
-                with GPIO(pins) as gpio:
-                     self._tempDragon = readDragonEnvTemperature(gpio, self._spi)
+                #with GPIO(pins) as gpio:
+                #     self._tempDragon = readDragonEnvTemperature(gpio, self._spi)
 
-                self._gps = GPS(logger, self._OS)
+                #self._gps = GPS(logger, self._OS)
                 self._rfid = RFIDReader(logger, self, self._OS)
 
             else:
