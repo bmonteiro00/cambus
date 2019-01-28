@@ -200,7 +200,7 @@ class Contador:
 
             #Aplica subtracao de fundo
             fgmask = fgbg.apply(frame)
-            fgmask2 = fgbg.apply(frame)
+            #fgmask2 = fgbg.apply(frame)
 
             #Binarizacao para eliminar sombras (color gris)
             try:
@@ -229,33 +229,13 @@ class Contador:
             #################
 
             # RETR_EXTERNAL returns only extreme outer flags. All child contours are left behind.
-            _, contours0, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contours0, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             for cnt in contours0:
-                #frame = cv2.drawContours(frame, cnt, -1, (0,255,0), 3, 8)
                 area = cv2.contourArea(cnt)
                 peri = cv2.arcLength(cnt, True)
                 M = cv2.moments(cnt)
-                ####
-                #### coloca numa lista para treinamento 1
-                list_P.append(np.float32(cv2.HuMoments(M)))
-                list_N.append(0)
-                ###
 
-                ####
-                #### coloca numa lista para treinamento 2
-                #list_P.append(np.float32(cnt.flatten()))
-                #list_N.append(1)
-                ###
-
-                shape = cv2.HuMoments(M).flatten()
-                #print(type(cnt[0]))
-                #print(cv2.HuMoments(M).flatten())
-                #print(cnt.flatten())
-                #print("-------------------------------------------------------------------------------------------------")
-                #print(decimal.Decimal(shape[6]))
-                #print(format((shape[0]), '20f'))
-                #cv2.drawContours(frame, cnt, -1, (0,0,255), 3, 8)
-                if area > areaTH: #and (peri > 950 and peri < 2500):
+                if area > areaTH:
 
                     #####################
                     #   RASTREAMENTO    #
@@ -263,70 +243,22 @@ class Contador:
 
                     #Falta agregar condicoes para multiplas pessoas, saidas e entradas da tela
 
-                    #M = cv2.moments(cnt)
-                    #print("Antes dos filtros: ", M)
                     cx = int(M['m10']/M['m00'])
                     cy = int(M['m01']/M['m00'])
 
                     x, y, w, h = cv2.boundingRect(cnt)
-                    dist = math.hypot(_center[0] - cx, _center[1] - cy)
-
-                    # tentativa de remover retangulos muito largos
-                    #if(x >= 240 or h >= 240):
-                    #   continue
 
                     new = True
                     if cy in range(up_limit, down_limit):
-                        #print("----------------------------------------------------------------")
-                        #print(cnt)
-                        #print("----------------------------------------------------------------")
-                        #if(len(cnt) < 80):
-                           # print("Possivel nao pessoa ................")
-                            #continue
-                        #print("Shape de nao pessoa: ", cv2.HuMoments(M).flatten())
                         for pessoa in pessoas:
                             if abs(cx - pessoa.getX()) <= w and abs(cy - pessoa.getY()) <= h:
                                 # O objeto esta perto de um que ja foi detectado anteriormente
                                 new = False
                                 pessoa.updateCoords(cx,cy)   #atualizar coordenadas no objeto e reseta a idade
                                 if pessoa.deslocaCima(line_down,line_up) == True: #  and shape[0] < 0.30:# and dist < 170 and dist > 70 : #and (pessoa.getOffset() - time.time() < -0.95):
-                                    print("Diferenca de tempo: ", (pessoa.getOffset() - time.time()))
                                     self._countUp += 1;
-                                    print ("ID: ",pessoa.getId(),'Entrou as',time.strftime("%c"))
-                                    print("Area objeto: " + str(area))
-                                    print("Distancia do centroide da pessoa: ", dist)
-                                    print(M)
-                                    print("Perimetro: ", peri)
-                                    print("Shape da pessoa: ", shape[0] < 0.30)
-                                    print("Shape da pessoa: ", shape[0] )
-                                    list.append((cx,cy))
-                                    list_P.pop()
-                                    list_N.pop()
-                                    list_P.append(np.float32(cv2.HuMoments(M)))
-                                    #print(np.float32(cv2.HuMoments(M)))
-                                    list_N.append(1)
-                                    #trainingData = np.matrix(cnt, dtype=np.float32)
-                                    #print("Training data ...... ")
-                                    #print(trainingData)
                                 elif pessoa.deslocaBaixo(line_down,line_up) == True : # and dist < 170 and dist > 70: # and (pessoa.getOffset() - time.time() < -0.95):
-                                    print("Diferenca de tempo: ", (pessoa.getOffset() - time.time()))
                                     self._countDown += 1;
-                                    print ("ID: ",pessoa.getId(),'Saiu as',time.strftime("%c"))
-                                    print("Area objeto: " + str(area))
-                                    print("Distancia do centroide da pessoa: ", dist)
-                                    print(M)
-                                    print("Perimetro: ", peri)
-                                    print("Shape da pessoa: ", shape[0] < 0.30)
-                                    print("Shape da pessoa: ", shape[0])
-                                    list.append((cx, cy))
-                                    list_P.pop()
-                                    list_N.pop()
-                                    list_P.append(np.float32(cv2.HuMoments(M)))
-                                    #print(np.float32(cv2.HuMoments(M)))
-                                    list_N.append(1)
-                                    #trainingData = np.matrix(cnt, dtype=np.float32)
-                                    #print("Training data ...... ")
-                                    #print(trainingData)
                                 break
                             if pessoa.getState() == '1':
                                 if pessoa.getDir() == 'Saiu' and pessoa.getY() > down_limit:
@@ -366,8 +298,8 @@ class Contador:
             #################
             #   IMAGEM      #
             #################
-            str_up = 'Entraram '+ str(cnt_up)
-            str_down = 'Sairam '+ str(cnt_down)
+            str_up = 'Entraram '+ str(self._countUp)
+            str_down = 'Sairam '+ str(self._countDown)
             tituloup = "Entrada "
             titulodown = "Saida "
             #dataehora = strftime("%c")
